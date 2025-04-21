@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/21 17:22:06 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/21 17:41:36 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,25 +14,25 @@
 
 static int is_on_filterlist(const char *test, const char *filterlist)
 {
-	char *token;
-	
+	if (!filterlist)
+		return 0;
+
+	if (!(strchr(filterlist, '|')))
+		return strcmp(test, filterlist) == 0;
+
 	char *filters = strdup(filterlist);
 	if (!filters)
 		return 0;
 
-	if (!(strchr(filters, '|'))) {
-		int ret = strcmp(test, filters) == 0;
-		free(filters);
-		return ret;
-	}
-	
-	token = strtok(filters, "|");
+	char *saveptr = NULL;
+	char *token;
+	token = strtok_r(filters, "|", &saveptr);
 	while (token) {
 		if (strcmp(test, token) == 0) {
 			free(filters);
 			return 1;
 		}
-		token = strtok(NULL, "|");
+		token = strtok_r(NULL, "|", &saveptr);
 	}
 	free(filters);
 	return 0;
@@ -66,8 +66,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			if (snprintf(full_path, bufsize, "%s%s%s",
 				path,
 				(path[n-1]=='/' ? "" : "/"),
-				entry->d_name) >= (int)bufsize)
-			{
+				entry->d_name) >= (int)bufsize) {
 				fprintf(stderr, "path too long\n");
 				free(full_path);
 				continue;
