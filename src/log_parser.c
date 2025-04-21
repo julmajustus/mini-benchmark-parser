@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 01:24:51 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 01:38:28 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,10 +213,18 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 					}
 					free(test_result_str);
 
-					if (!te)
-						te = new_test_entry(test_name, test_result);
-					else
-						test_entry_add_back(&te, new_test_entry(test_name, test_result));
+					t_test_entry *node = new_test_entry(test_name, test_result);
+					if (!node) {
+						fprintf(stderr, "Memory allocation failed for test entry '%s'\n", test_name);
+						free(test_name);
+						clean_test_entries(te);
+						free(date);
+						free(kernel_ver);
+						free(system_info);
+						if (fclose(f) != 0) fprintf(stderr, "Failed to close file\n");
+						continue;
+					}
+					test_entry_add_back(&te, node);
 				}
 			}
 
@@ -271,10 +279,17 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 				continue;
 			}
 
-			if (!bm)
-				bm = new_benchmark(te, date, kernel_ver, system_info, mode);
-			else
-				benchmark_add_back(&bm, new_benchmark(te, date, kernel_ver, system_info, mode));
+			t_benchmark *bench = new_benchmark(te, date, kernel_ver, system_info, mode);
+			if (!bench) {
+				fprintf(stderr, "Memory allocation failed for benchmark node\n");
+				clean_test_entries(te);
+				free(date);
+				free(kernel_ver);
+				free(system_info);
+				if (fclose(f) != 0) fprintf(stderr, "Failed to close file\n");
+				continue;
+			}
+			benchmark_add_back(&bm, bench);
 
 			if (is_malformed) {
 				fprintf(stderr, "Malformed log file: %s\n", entry->d_name);
