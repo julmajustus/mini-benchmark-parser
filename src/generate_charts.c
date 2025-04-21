@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 17:43:45 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 00:51:43 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 01:54:32 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,16 +47,9 @@ static char *generate_filename(const char *prefix, int mode)
 	time_t rawtime;
 	struct tm *timeinfo;
 	char timestamp[64];
-	char *mode_str = malloc(sizeof(char) * 16);
-	if (!mode_str) {
-		fprintf(stderr, "Malloc failed'n");
-		return NULL;
-	}
 
-	if (mode == 1)
-		mode_str = "mini";
-	if (mode == 2)
-		mode_str = "nano";
+	const char *mode_str = (mode == 1 ? "mini" : mode == 2 ? "nano" : "");
+
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 	strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", timeinfo);
