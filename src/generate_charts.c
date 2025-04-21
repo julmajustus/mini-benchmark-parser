@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 17:43:45 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 01:54:32 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:08:01 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,9 @@ static char *generate_filename(const char *prefix, int mode)
 	strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", timeinfo);
 
 	if (mode)
-		size = strlen(prefix) + strlen(mode_str) + strlen(timestamp) + 10;
+		size = strlen(prefix) + strlen(mode_str) + strlen(timestamp) + 11;
 	else
-		size = strlen(prefix) + strlen(timestamp) + 10;
+		size = strlen(prefix) + strlen(timestamp) + 11;
 
 	char *filename = malloc(size);
 	if (!filename) {
@@ -76,6 +76,7 @@ static void plot_kernel_version_comparison(const t_benchmark *benchmarks, char *
 {
 	if (!benchmarks || !filename)
 		return;
+
 	const t_benchmark *bm = benchmarks;
 	PyObject *py_average_times = PyList_New(0);
 	PyObject *py_kernel_versions = PyList_New(0);
@@ -87,11 +88,14 @@ static void plot_kernel_version_comparison(const t_benchmark *benchmarks, char *
 
 	while (bm) {
 		PyObject *py_tests = PyDict_New();
+
 		if (!py_tests) {
 			fprintf(stderr, "Failed to allocate Python dict.\n");
 			continue;
 		}
+
 		t_test_entry *te = bm->data;
+		
 		while (te) {
 			PyObject *py_val = PyFloat_FromDouble(te->result);
 			if (!py_val)
@@ -100,12 +104,15 @@ static void plot_kernel_version_comparison(const t_benchmark *benchmarks, char *
 			Py_DECREF(py_val);
 			te = te->next;
 		}
+
 		PyList_Append(py_average_times, py_tests);
 		Py_DECREF(py_tests);
 
 		PyObject *py_kv = PyUnicode_FromString(bm->kernel_ver);
+		
 		if (!py_kv)
 			continue;
+		
 		PyList_Append(py_kernel_versions, py_kv);
 		Py_DECREF(py_kv);
 		bm = bm->next;
@@ -157,10 +164,16 @@ static void plot_kernel_version_comparison(const t_benchmark *benchmarks, char *
 	PyObject *py_main_dict = PyModule_GetDict(PyImport_AddModule("__main__"));
 	PyDict_SetItemString(py_main_dict, "average_times", py_average_times);
 	PyDict_SetItemString(py_main_dict, "kernel_versions", py_kernel_versions);
-	PyDict_SetItemString(py_main_dict, "filename", PyUnicode_FromString(filename));
+
+	PyObject *py_fname = PyUnicode_FromString(filename);
+	if (py_fname) {
+		PyDict_SetItemString(py_main_dict, "filename", py_fname);
+		Py_DECREF(py_fname);
+	}
 
 	if (PyRun_SimpleString(plot_code) != 0) {
 		fprintf(stderr, "Error executing embedded Python plot code.\n");
+		PyErr_Print();
 		Py_DECREF(py_average_times);
 		Py_DECREF(py_kernel_versions);
 		return;
@@ -175,6 +188,11 @@ static void plot_kernel_version_comparison(const t_benchmark *benchmarks, char *
 
 static void generate_html_page(char **filenames)
 {
+	if (!filenames[0] && !filenames[1] && !filenames[2]) {
+		fprintf(stderr, "No charts to write, skipping HTML\n");
+		return;
+	}
+
 	FILE *fp = fopen("test_performance.html", "w");
 	if (!fp) {
 		fprintf(stderr, "Failed to open test_performance.html for writing\n");
@@ -216,10 +234,12 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 {
 
 	char **filename = malloc(sizeof(char *) * 3);
+	
 	if (!filename) {
 		fprintf(stderr, "Memory allocation error.\n");
 		return;
 	}
+
 	for (int i = 0; i < 3; i++) {
 		filename[i] = NULL;
 	}
@@ -232,6 +252,7 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 			continue;
 
 		filename[i] = generate_filename("kernel_version_comparison", i);
+		
 		if (!filename[i]) {
 			fprintf(stderr, "Failed to generate filename for mode: %d\n", i);
 			while (bm) {
@@ -241,7 +262,9 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 			}
 			continue;
 		}
+		
 		t_benchmark *combined = combine_benchmarks(bm);
+		
 		if (!combined) {
 			fprintf(stderr, "Benchmark combine failed\n");
 			free(filename);
@@ -263,8 +286,10 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 	}
 
 	Py_Finalize();
+
 	if (make_html)
 		generate_html_page(filename);
+	
 	for (int i = 0; i < 3; i++)
 		free(filename[i]);
 	free(filename);
