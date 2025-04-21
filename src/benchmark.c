@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:42:47 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 01:24:22 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:22:49 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,17 @@ t_benchmark *new_benchmark(t_test_entry *data, char *date, char *kernel_ver, cha
 	t_benchmark	*new_node;
 
 	new_node = malloc(sizeof(t_benchmark));
+	
 	if (!new_node)
 		return (NULL);
+
 	new_node->data = data;
 	new_node->date = date;
 	new_node->kernel_ver = kernel_ver;
 	new_node->system_info = system_info;
 	new_node->mode = mode;
 	new_node->next = NULL;
+
 	return (new_node);
 }
 
@@ -34,9 +37,11 @@ t_benchmark *last_benchmark(t_benchmark *lst)
 
 	if (!lst)
 		return (NULL);
+
 	lptr = lst;
 	while (lptr->next)
 		lptr = lptr->next;
+
 	return (lptr);
 }
 
@@ -46,10 +51,12 @@ void benchmark_add_back(t_benchmark **lst, t_benchmark *new)
 
 	if (!new)
 		return ;
+
 	if (!*lst) {
 		*lst = new;
 		return ;
 	}
+
 	ptr = last_benchmark(*lst);
 	ptr->next = new;
 }
@@ -61,6 +68,7 @@ t_benchmark *find_benchmark_by_kernel(t_benchmark *lst, const char *kernel_ver, 
 			return lst;
 		lst = lst->next;
 	}
+
 	return NULL;
 }
 
@@ -75,16 +83,19 @@ static t_benchmark *duplicate_benchmark(const t_benchmark *benchmark)
 	t_test_entry *te = benchmark->data;
 	while(te) {
 		char *name_dup = strdup(te->name);
+
 		if (!name_dup) {
 			clean_test_entries(te_dup);
 			return NULL;
 		}
+
 		t_test_entry *node = new_test_entry(name_dup, te->result);
 		if (!node) {
 			free(name_dup);
 			clean_test_entries(te_dup);
 			return NULL;
 		}
+
 		test_entry_add_back(&te_dup, node);
 		te = te->next;
 	}
@@ -136,6 +147,7 @@ t_benchmark *combine_benchmarks(const t_benchmark *benchmark)
 					clean_benchmarks(combined);
 					return NULL;
 				}
+
 				t_test_entry *node = new_test_entry(name_dup, te->result);
 				if (!node) {
 					free(name_dup);
@@ -151,6 +163,7 @@ t_benchmark *combine_benchmarks(const t_benchmark *benchmark)
 				clean_benchmarks(combined);
 				return NULL;
 			}
+
 			benchmark_add_back(&combined, dup);
 		}
 		benchmark = benchmark->next;
@@ -182,6 +195,7 @@ static int compare_kernel_ver(const t_benchmark *a, const t_benchmark *b)
 		free(b_num);
 		return strcmp(a->kernel_ver, b->kernel_ver);
 	}
+
 	if (sscanf(b_num, "%d.%d.%d", &b_major, &b_minor, &b_patch) != 3) {
 		free(a_num);
 		free(b_num);
@@ -193,8 +207,10 @@ static int compare_kernel_ver(const t_benchmark *a, const t_benchmark *b)
 
 	if (a_major != b_major)
 		return a_major - b_major;
+	
 	if (a_minor != b_minor)
 		return a_minor - b_minor;
+
 	return a_patch - b_patch;
 }
 
@@ -202,6 +218,7 @@ static int compare_benchmark_ptr(const void *pa, const void *pb)
 {
 	const t_benchmark *a = *(const t_benchmark **)pa;
 	const t_benchmark *b = *(const t_benchmark **)pb;
+	
 	return compare_kernel_ver(a, b);
 }
 
@@ -247,15 +264,16 @@ size_t get_benchmark_list_size(const t_benchmark *lst)
 		len++;
 		lst = lst->next;
 	}
+	
 	return len;
 }
 
 void clean_benchmarks(t_benchmark *lst)
 {
-	t_benchmark *ptr;
 	if (!lst)
 		return;
 
+	t_benchmark *ptr;
 	while (lst) {
 		clean_test_entries(lst->data);
 		if (lst->date)

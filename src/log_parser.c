@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 01:38:28 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:27:58 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ static int parse_result(const char *str, double *result)
 		fprintf(stderr, "Parsing failed: invalid numeric (no digits)\n");
 		return 0;
 	}
+
 	if (errno == ERANGE) {
 		fprintf(stderr, "Parsing failed: numeric out of range\n");
 		return 0;
@@ -33,7 +34,9 @@ static int parse_result(const char *str, double *result)
 		fprintf(stderr, "Parsing failed: trailing characters after number\n");
 		return 0;
 	}
+	
 	*result = val;
+
 	return 1;
 }
 
@@ -59,6 +62,7 @@ static int is_on_filterlist(const char *test, const char *filterlist)
 		token = strtok_r(NULL, "|", &saveptr);
 	}
 	free(filters);
+	
 	return 0;
 }
 
@@ -76,7 +80,6 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 
 	while ((entry = readdir(dir)) != NULL) {
 		if (strncmp(entry->d_name, "benchie_", 8) == 0) {
-
 			size_t n = strlen(path);
 			size_t m = strlen(entry->d_name);
 			size_t bufsize = n + 1 + m + 1;
@@ -96,7 +99,6 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			}
 
 			FILE *f = fopen(full_path, "r");
-
 			free(full_path);
 			if (!f) {
 				fprintf(stderr, "Failed to open file: %s\n", entry->d_name);
@@ -104,7 +106,6 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			}
 
 			t_test_entry *te = NULL;
-
 			char line[BUF_SIZE];
 			memset(line, '\0', BUF_SIZE);
 			char *date = NULL;
@@ -112,7 +113,6 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			int mode = 0;
 			int test_data_collected = 0;
 			int is_malformed = 0;
-
 			size_t system_info_cap = BUF_SIZE;
 			size_t system_info_len = 0;
 			char *system_info = malloc(system_info_cap);
@@ -124,11 +124,9 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			system_info[0] = '\0';
 
 			while (fgets(line, sizeof(line), f)) {
-
 				size_t line_len = strlen(line);
 
 				if (test_data_collected) {
-
 					if (system_info_len + line_len + 1 > system_info_cap) {
 						size_t new_cap = system_info_cap * 2;
 						if (new_cap < system_info_len + line_len + 1)
@@ -140,6 +138,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 							is_malformed = 1;
 							break;
 						}
+
 						system_info = tmp;
 						system_info_cap = new_cap;
 					}
@@ -181,6 +180,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 						is_malformed = 1;
 						continue;
 					}
+
 					test_name = strndup(line, col - line);
 					if (!test_name) {
 						fprintf(stderr, "Failed to read test name from: %s\n", line);
@@ -194,6 +194,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 							continue;
 						}
 					}
+
 					if (exclude_test_filter) {
 						if (is_on_filterlist(test_name, exclude_test_filter)) {
 							free(test_name);
@@ -211,6 +212,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 						fprintf(stderr, "Test: '%s' has invalid numeric: %s\n", test_name, test_result_str);
 						is_malformed = 1;
 					}
+
 					free(test_result_str);
 
 					t_test_entry *node = new_test_entry(test_name, test_result);
@@ -224,6 +226,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 						if (fclose(f) != 0) fprintf(stderr, "Failed to close file\n");
 						continue;
 					}
+
 					test_entry_add_back(&te, node);
 				}
 			}

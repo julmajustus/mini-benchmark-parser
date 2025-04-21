@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 17:43:45 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 02:16:38 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:24:49 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ static char *generate_filename(const char *prefix, int mode)
 		snprintf(filename, size, "%s-%s_%s.png", prefix, mode_str, timestamp);
 	else
 		snprintf(filename, size, "%s_%s.png", prefix, timestamp);
+
 	return filename;
 }
 
@@ -86,7 +87,6 @@ static void plot_kernel_version_comparison(const t_benchmark *benchmarks, char *
 	const t_benchmark *bm = benchmarks;
 	PyObject *py_average_times = PyList_New(0);
 	PyObject *py_kernel_versions = PyList_New(0);
-	
 	if (!py_average_times) {
 		fprintf(stderr, "Failed to allocate Python objects.\n");
 		return;
@@ -118,8 +118,7 @@ static void plot_kernel_version_comparison(const t_benchmark *benchmarks, char *
 		PyList_Append(py_average_times, py_tests);
 		Py_DECREF(py_tests);
 
-		PyObject *py_kv = PyUnicode_FromString(bm->kernel_ver);
-		
+		PyObject *py_kv = PyUnicode_FromString(bm->kernel_ver);	
 		if (!py_kv)
 			continue;
 		
@@ -244,7 +243,6 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 {
 
 	char **filename = malloc(sizeof(char *) * 3);
-	
 	if (!filename) {
 		fprintf(stderr, "Memory allocation error.\n");
 		return;
@@ -257,12 +255,10 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 	Py_Initialize();
 	for (int i = 0; i < 3; i++) {
 		t_benchmark *bm = get_benchmarks_by_mode(benchmarks, i);
-
 		if (!bm)
 			continue;
 
 		filename[i] = generate_filename("kernel_version_comparison", i);
-		
 		if (!filename[i]) {
 			fprintf(stderr, "Failed to generate filename for mode: %d\n", i);
 			while (bm) {
@@ -274,7 +270,6 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 		}
 		
 		t_benchmark *combined = combine_benchmarks(bm);
-		
 		if (!combined) {
 			fprintf(stderr, "Benchmark combine failed\n");
 			free(filename);
@@ -286,9 +281,11 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 			Py_Finalize();
 			return;
 		}
+
 		combined = sort_benchmarks(combined);
 		plot_kernel_version_comparison(combined, filename[i]);
 		clean_benchmarks(combined);
+
 		while (bm) {
 			t_benchmark *next = bm->next;
 			free(bm);

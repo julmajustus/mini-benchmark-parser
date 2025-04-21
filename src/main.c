@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 15:12:30 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 00:48:47 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:28:28 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,5 +160,6 @@ int main(int ac, char **av)
 	}
 
 	clean_benchmarks(benchmarks);
+
 	return 0;
 }

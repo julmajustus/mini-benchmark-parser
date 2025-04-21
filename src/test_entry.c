@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:37:39 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 01:28:04 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:33:16 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "test_entry.h"
@@ -18,11 +18,13 @@ t_test_entry *new_test_entry(char *name, double result)
 	new_node = malloc(sizeof(t_test_entry));
 	if (!new_node)
 		return (NULL);
+	
 	new_node->name = name;
 	new_node->result = result;
 	new_node->sum = result;
 	new_node->count = 1;
 	new_node->next = NULL;
+	
 	return (new_node);
 }
 
@@ -32,9 +34,11 @@ t_test_entry *last_test_entry(t_test_entry *lst)
 
 	if (!lst)
 		return (NULL);
+	
 	lptr = lst;
 	while (lptr->next)
 		lptr = lptr->next;
+	
 	return (lptr);
 }
 
@@ -44,10 +48,12 @@ void test_entry_add_back(t_test_entry **lst, t_test_entry *new)
 
 	if (!new)
 		return ;
+	
 	if (!*lst) {
 		*lst = new;
 		return ;
 	}
+	
 	ptr = last_test_entry(*lst);
 	ptr->next = new;
 }
@@ -59,7 +65,8 @@ t_test_entry *find_test_entry(t_test_entry *lst, const char *name)
             return lst;
         lst = lst->next;
     }
-    return NULL;
+    
+	return NULL;
 }
 
 size_t get_test_entry_list_size(const t_test_entry *lst)
@@ -69,6 +76,7 @@ size_t get_test_entry_list_size(const t_test_entry *lst)
 		len++;
 		lst = lst->next;
 	}
+	
 	return len;
 }
 
