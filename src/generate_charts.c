@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 17:43:45 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 02:08:01 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:10:40 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,6 +273,7 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 				free(bm);
 				bm = next;
 			}
+			Py_Finalize();
 			return;
 		}
 		combined = sort_benchmarks(combined);
