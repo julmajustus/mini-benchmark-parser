@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:37:39 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 01:23:09 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 01:28:04 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "test_entry.h"
@@ -74,6 +74,9 @@ size_t get_test_entry_list_size(const t_test_entry *lst)
 
 void merge_test_entry(t_test_entry **head, t_test_entry *new_entry)
 {
+	if (!new_entry || !new_entry->name)
+		return;
+
 	t_test_entry *existing = find_test_entry(*head, new_entry->name);
 	if (existing) {
 		existing->sum += new_entry->sum;
