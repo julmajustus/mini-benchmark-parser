@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/21 20:14:54 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 01:24:51 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,7 +228,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 					free(kernel_ver);
 					free(date);
 					free(system_info);
-					clean_test_entrys(te);
+					clean_test_entries(te);
 					if (fclose(f) != 0) {
 						fprintf(stderr, "Failed to close file\n");
 						clean_benchmarks(bm);
@@ -245,7 +245,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 					free(kernel_ver);
 					free(date);
 					free(system_info);
-					clean_test_entrys(te);
+					clean_test_entries(te);
 					if (fclose(f) != 0) {
 						fprintf(stderr, "Failed to close file\n");
 						clean_benchmarks(bm);

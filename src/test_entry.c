@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:37:39 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/18 23:59:10 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 01:23:09 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "test_entry.h"
@@ -62,9 +62,9 @@ t_test_entry *find_test_entry(t_test_entry *lst, const char *name)
     return NULL;
 }
 
-int get_test_entry_list_size(const t_test_entry *lst)
+size_t get_test_entry_list_size(const t_test_entry *lst)
 {
-	int len = 0;
+	size_t len = 0;
 	while (lst) {
 		len++;
 		lst = lst->next;
@@ -94,7 +94,7 @@ void merge_test_entry(t_test_entry **head, t_test_entry *new_entry)
 	}
 }
 
-void clean_test_entrys(t_test_entry *entry)
+void clean_test_entries(t_test_entry *entry)
 {
 	t_test_entry *ptr;
 

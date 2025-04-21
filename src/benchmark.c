@@ -6,12 +6,11 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:42:47 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 01:18:59 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 01:24:22 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "benchmark.h"
-#include <stddef.h>
 
 t_benchmark *new_benchmark(t_test_entry *data, char *date, char *kernel_ver, char *system_info, int mode)
 {
@@ -77,13 +76,13 @@ static t_benchmark *duplicate_benchmark(const t_benchmark *benchmark)
 	while(te) {
 		char *name_dup = strdup(te->name);
 		if (!name_dup) {
-			clean_test_entrys(te_dup);
+			clean_test_entries(te_dup);
 			return NULL;
 		}
 		t_test_entry *node = new_test_entry(name_dup, te->result);
 		if (!node) {
 			free(name_dup);
-			clean_test_entrys(te_dup);
+			clean_test_entries(te_dup);
 			return NULL;
 		}
 		test_entry_add_back(&te_dup, node);
@@ -92,14 +91,14 @@ static t_benchmark *duplicate_benchmark(const t_benchmark *benchmark)
 
 	date_dup = strdup(benchmark->date);
 	if (!date_dup) {
-		clean_test_entrys(te_dup);
+		clean_test_entries(te_dup);
 		return NULL;
 	}
 
 	kv_dup = strdup(benchmark->kernel_ver);
 	if (!kv_dup) {
 		free(date_dup);
-		clean_test_entrys(te_dup);
+		clean_test_entries(te_dup);
 		return NULL;
 	}
 
@@ -107,7 +106,7 @@ static t_benchmark *duplicate_benchmark(const t_benchmark *benchmark)
 	if (!sysinfo_dup) {
 		free(kv_dup);
 		free(date_dup);
-		clean_test_entrys(te_dup);
+		clean_test_entries(te_dup);
 		return NULL;
 	}
 
@@ -116,7 +115,7 @@ static t_benchmark *duplicate_benchmark(const t_benchmark *benchmark)
 		free(sysinfo_dup);
 		free(kv_dup);
 		free(date_dup);
-		clean_test_entrys(te_dup);
+		clean_test_entries(te_dup);
 		return NULL;
 	}
 
@@ -258,7 +257,7 @@ void clean_benchmarks(t_benchmark *lst)
 		return;
 
 	while (lst) {
-		clean_test_entrys(lst->data);
+		clean_test_entries(lst->data);
 		if (lst->date)
 			free(lst->date);
 		if (lst->kernel_ver)
