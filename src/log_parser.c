@@ -6,37 +6,35 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/21 19:42:19 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/21 20:14:54 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "log_parser.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 static int parse_result(const char *str, double *result)
 {
-    char *endptr;
-    errno = 0;
-    double val = strtod(str, &endptr);
+	char *endptr;
+	errno = 0;
+	double val = strtod(str, &endptr);
 
-    if (endptr == str) {
-        fprintf(stderr, "Parsing failed: invalid numeric (no digits)\n");
-        return 0;
-    }
-    if (errno == ERANGE) {
-        fprintf(stderr, "Parsing failed: numeric out of range\n");
-        return 0;
-    }
+	if (endptr == str) {
+		fprintf(stderr, "Parsing failed: invalid numeric (no digits)\n");
+		return 0;
+	}
+	if (errno == ERANGE) {
+		fprintf(stderr, "Parsing failed: numeric out of range\n");
+		return 0;
+	}
 
-    while (isspace((unsigned char)*endptr))
-        endptr++;
-    if (*endptr != '\0') {
-        fprintf(stderr, "Parsing failed: trailing characters after number\n");
-        return 0;
-    }
-    *result = val;
-    return 1;
+	while (isspace((unsigned char)*endptr))
+		endptr++;
+	if (*endptr != '\0') {
+		fprintf(stderr, "Parsing failed: trailing characters after number\n");
+		return 0;
+	}
+	*result = val;
+	return 1;
 }
 
 static int is_on_filterlist(const char *test, const char *filterlist)
@@ -67,7 +65,6 @@ static int is_on_filterlist(const char *test, const char *filterlist)
 t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *test_filter,
 					   const char *exclude_kernel_filter, const char *exclude_test_filter)
 {
-	
 	t_benchmark *bm = NULL;
 	struct dirent *entry;
 
@@ -79,7 +76,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 
 	while ((entry = readdir(dir)) != NULL) {
 		if (strncmp(entry->d_name, "benchie_", 8) == 0) {
-		
+
 			size_t n = strlen(path);
 			size_t m = strlen(entry->d_name);
 			size_t bufsize = n + 1 + m + 1;
@@ -93,7 +90,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 				path,
 				(path[n-1]=='/' ? "" : "/"),
 				entry->d_name) >= (int)bufsize) {
-				fprintf(stderr, "path too long\n");
+				fprintf(stderr, "Failed to create fullpath: path too long\n");
 				free(full_path);
 				continue;
 			}
@@ -107,7 +104,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			}
 
 			t_test_entry *te = NULL;
-			
+
 			char line[BUF_SIZE];
 			memset(line, '\0', BUF_SIZE);
 			char *date = NULL;
@@ -115,7 +112,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			int mode = 0;
 			int test_data_collected = 0;
 			int is_malformed = 0;
-			
+
 			size_t system_info_cap = BUF_SIZE;
 			size_t system_info_len = 0;
 			char *system_info = malloc(system_info_cap);
@@ -127,7 +124,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			system_info[0] = '\0';
 
 			while (fgets(line, sizeof(line), f)) {
-				
+
 				size_t line_len = strlen(line);
 
 				if (test_data_collected) {
@@ -177,7 +174,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 					char *test_name = NULL;
 					char *test_result_str = NULL;
 					double test_result = 0;
-					
+
 					char *col = strchr(line, ':');
 					if (!col) {
 						fprintf(stderr, "Failed to read test name (no colon): %s\n", line);
@@ -190,7 +187,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 						is_malformed = 1;
 						continue;
 					}
-					
+
 					if (test_filter) {
 						if (!is_on_filterlist(test_name, test_filter)) {
 							free(test_name);
@@ -222,10 +219,10 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 						test_entry_add_back(&te, new_test_entry(test_name, test_result));
 				}
 			}
-			
+
 			if (!date || !kernel_ver)
 				is_malformed = 1;
-			
+
 			if (kernel_filter && kernel_ver) {
 				if (!is_on_filterlist(kernel_ver, kernel_filter)) {
 					free(kernel_ver);
@@ -235,7 +232,8 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 					if (fclose(f) != 0) {
 						fprintf(stderr, "Failed to close file\n");
 						clean_benchmarks(bm);
-						closedir(dir);
+						if (closedir(dir) != 0)
+							fprintf(stderr, "Failed to close directory\n");
 						return NULL;
 					}
 					continue;
@@ -251,7 +249,8 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 					if (fclose(f) != 0) {
 						fprintf(stderr, "Failed to close file\n");
 						clean_benchmarks(bm);
-						closedir(dir);
+						if (closedir(dir) != 0)
+							fprintf(stderr, "Failed to close directory\n");
 						return NULL;
 					}
 					continue;
@@ -265,7 +264,8 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 				if (fclose(f) != 0) {
 					fprintf(stderr, "Failed to close file\n");
 					clean_benchmarks(bm);
-					closedir(dir);
+					if (closedir(dir) != 0)
+						fprintf(stderr, "Failed to close directory\n");
 					return NULL;
 				}
 				continue;
@@ -280,18 +280,26 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 				fprintf(stderr, "Malformed log file: %s\n", entry->d_name);
 				if (fclose(f) != 0)
 					fprintf(stderr, "Failed to close file\n");
-				closedir(dir);
+				if (closedir(dir) != 0)
+					fprintf(stderr, "Failed to close directory\n");
 				clean_benchmarks(bm);
 				return NULL;
 			}
 			else if (fclose(f) != 0) {
 				fprintf(stderr, "Failed to close file\n");
 				clean_benchmarks(bm);
-				closedir(dir);
+				if (closedir(dir) != 0)
+					fprintf(stderr, "Failed to close directory\n");
 				return NULL;
 			}
 		}
 	}
-	closedir(dir);
+
+	if (closedir(dir) != 0) {
+		fprintf(stderr, "Failed to close directory\n");
+		clean_benchmarks(bm);
+		return NULL;
+	};
+
 	return bm;
 }
