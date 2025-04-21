@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:48:26 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/18 23:57:19 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 01:46:46 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 
 void print_benchmark(t_benchmark *benchmark, int print_sys_info)
 {
+	if (!benchmark)
+		return;
+
 	t_benchmark *bm;
 	t_test_entry *te;
 
@@ -59,6 +62,9 @@ void print_benchmark(t_benchmark *benchmark, int print_sys_info)
 
 void print_kernel_comparison(t_benchmark *combined)
 {
+	if (!combined)
+		return;
+
 	int padding_width = 0, max_test_count = 0;
 	t_benchmark *bm = combined;
 
@@ -73,7 +79,7 @@ void print_kernel_comparison(t_benchmark *combined)
 	}
 
 	int t_time = 0, t_score = 0, test_count = 0;
-	char **test_names = malloc(sizeof(char *) * max_test_count);
+	char **test_names = malloc(sizeof(char *) * max_test_count + 2);
 	if (!test_names) {
 		fprintf(stderr, "Memory allocation error.\n");
 		return;
