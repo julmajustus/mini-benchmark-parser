@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/19 00:01:17 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/21 17:22:06 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,20 +54,25 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 	while ((entry = readdir(dir)) != NULL) {
 		if (strncmp(entry->d_name, "benchie_", 8) == 0) {
 		
-			int path_len = strlen(path) + strlen(entry->d_name) + 1;
-			char *full_path = calloc(path_len, path_len);
-			if (!full_path) {
-				fprintf(stderr, "Calloc failed\n");
-				continue;
-			}
-			full_path = strcpy(full_path, path);
-			if (full_path[strlen(full_path)] != '/')
-				full_path = strcat(full_path, "/");
-			full_path = strcat(full_path, entry->d_name);
+			size_t n = strlen(path);
+			size_t m = strlen(entry->d_name);
+			size_t bufsize = n + 1 + m + 1;
+			char *full_path = malloc(bufsize);
 			if (!full_path) {
 				fprintf(stderr, "Failed to create full path from: %s +  %s\n",path, entry->d_name);
 				continue;
 			}
+
+			if (snprintf(full_path, bufsize, "%s%s%s",
+				path,
+				(path[n-1]=='/' ? "" : "/"),
+				entry->d_name) >= (int)bufsize)
+			{
+				fprintf(stderr, "path too long\n");
+				free(full_path);
+				continue;
+			}
+
 			FILE *f = fopen(full_path, "r");
 			
 			if (!f) {
