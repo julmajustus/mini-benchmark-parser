@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/21 18:50:11 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/21 19:00:25 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,9 +151,16 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 					char *test_result_str = NULL;
 					double test_result = 0;
 					
-					test_name = strndup(line, (int)(strchr(line, ':') - line));
+					char *col = strchr(line, ':');
+					if (!col) {
+						fprintf(stderr, "Malformed line (no colon): %s\n", line);
+						is_malformed = 1;
+						continue;
+					}
+					test_name = strndup(line, col - line);
 					if (!test_name) {
 						fprintf(stderr, "Failed to read test name from: %s\n", line);
+						is_malformed = 1;
 						continue;
 					}
 					
