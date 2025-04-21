@@ -6,11 +6,36 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/21 17:41:36 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/21 18:50:11 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "log_parser.h"
+
+static int parse_result(const char *str, double *result)
+{
+    char *endptr;
+    errno = 0;
+    double val = strtod(str, &endptr);
+
+    if (endptr == str) {
+        fprintf(stderr, "Parsing failed: invalid numeric (no digits)\n");
+        return 0;
+    }
+    if (errno == ERANGE) {
+        fprintf(stderr, "Parsing failed: numeric out of range\n");
+        return 0;
+    }
+
+    while (isspace((unsigned char)*endptr))
+        endptr++;
+    if (*endptr != '\0') {
+        fprintf(stderr, "Parsing failed: trailing characters after number\n");
+        return 0;
+    }
+    *result = val;
+    return 1;
+}
 
 static int is_on_filterlist(const char *test, const char *filterlist)
 {
@@ -25,8 +50,7 @@ static int is_on_filterlist(const char *test, const char *filterlist)
 		return 0;
 
 	char *saveptr = NULL;
-	char *token;
-	token = strtok_r(filters, "|", &saveptr);
+	char *token = strtok_r(filters, "|", &saveptr);
 	while (token) {
 		if (strcmp(test, token) == 0) {
 			free(filters);
@@ -152,7 +176,10 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 						continue;
 					}
 
-					test_result = atof(test_result_str);
+					if (!parse_result(test_result_str, &test_result)) {
+						fprintf(stderr, "Test: '%s' has invalid numeric: %s\n", test_name, test_result_str);
+						is_malformed = 1;
+					}
 					free(test_result_str);
 
 					if (!te)
