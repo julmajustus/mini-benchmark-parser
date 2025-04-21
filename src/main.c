@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 15:12:30 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 02:36:40 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:40:03 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,9 +141,13 @@ int main(int ac, char **av)
 
 		if (home) {
 			char chart_path[PATH_MAX];
-			snprintf(chart_path, sizeof(chart_path), "%s/.local/share/mbparser/", home);
+			if (snprintf(chart_path, sizeof(chart_path), "%s/.local/share/mbparser/", home) < 0) {
+				fprintf(stderr, "HOME path too long\n");
+				clean_benchmarks(benchmarks);
+				return 1;
+			}
 
-			if (access(path, F_OK | R_OK | W_OK) != 0) {
+			if (access(chart_path, F_OK | R_OK | W_OK) != 0) {
 				if (mkdir(chart_path, 0755) == -1) {
 					fprintf(stderr, "Failed to create the directory: %s\n", chart_path);
 					clean_benchmarks(benchmarks);
