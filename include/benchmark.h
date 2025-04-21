@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:33:50 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/18 23:58:22 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 01:19:12 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "test_entry.h"
 #include <stdio.h>
+#include <stdint.h>
 
 typedef struct s_benchmark {
 	t_test_entry         *data;
@@ -31,7 +32,7 @@ void benchmark_add_back(t_benchmark **lst, t_benchmark *new_benchmark);
 t_benchmark *find_benchmark_by_kernel(t_benchmark *lst, const char *kernel_ver, int mode);
 t_benchmark *combine_benchmarks(const t_benchmark *benchmark);
 t_benchmark *sort_benchmarks(t_benchmark *benchmark);
-int get_benchmark_list_size(const t_benchmark *lst);
+size_t get_benchmark_list_size(const t_benchmark *lst);
 void clean_benchmarks(t_benchmark *lst);
 
 #endif

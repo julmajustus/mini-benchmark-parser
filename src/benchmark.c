@@ -6,12 +6,12 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:42:47 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 00:55:52 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 01:18:59 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "benchmark.h"
-#include <stdio.h>
+#include <stddef.h>
 
 t_benchmark *new_benchmark(t_test_entry *data, char *date, char *kernel_ver, char *system_info, int mode)
 {
@@ -201,44 +201,49 @@ static int compare_kernel_ver(const t_benchmark *a, const t_benchmark *b)
 
 static int compare_benchmark_ptr(const void *pa, const void *pb)
 {
-    const t_benchmark *a = *(const t_benchmark **)pa;
-    const t_benchmark *b = *(const t_benchmark **)pb;
-    return compare_kernel_ver(a, b);
+	const t_benchmark *a = *(const t_benchmark **)pa;
+	const t_benchmark *b = *(const t_benchmark **)pb;
+	return compare_kernel_ver(a, b);
 }
 
 t_benchmark *sort_benchmarks(t_benchmark *benchmark)
 {
 
-    int count = get_benchmark_list_size(benchmark);
-    if (count < 2)
-        return benchmark;
+	size_t count = get_benchmark_list_size(benchmark);
+	if (count < 2)
+		return benchmark;
 
-    t_benchmark **arr = malloc(count * sizeof(t_benchmark *));
-    if (!arr) {
-		fprintf(stderr, "Malloc failed at sort_benchmarks\n");
-        return benchmark;
+	if (count > SIZE_MAX / sizeof(t_benchmark *)) {
+		fprintf(stderr, "Too many benchmarks to sort\n");
+		return benchmark;
 	}
 
-    int i = 0;
-    for (t_benchmark *cur = benchmark; cur != NULL; cur = cur->next) {
-        arr[i++] = cur;
-    }
+	t_benchmark **arr = malloc(count * sizeof(t_benchmark *));
+	if (!arr) {
+		fprintf(stderr, "Malloc failed at sort_benchmarks\n");
+		return benchmark;
+	}
 
-    qsort(arr, count, sizeof(t_benchmark *), compare_benchmark_ptr);
+	size_t i = 0;
+	for (t_benchmark *cur = benchmark; cur != NULL; cur = cur->next) {
+		arr[i++] = cur;
+	}
 
-    for (i = 0; i < count - 1; i++) {
-        arr[i]->next = arr[i + 1];
-    }
-    arr[count - 1]->next = NULL;
+	qsort(arr, count, sizeof(t_benchmark *), compare_benchmark_ptr);
 
-    t_benchmark *sorted = arr[0];
-    free(arr);
-    return sorted;
+	for (i = 0; i < count - 1; i++) {
+		arr[i]->next = arr[i + 1];
+	}
+	arr[count - 1]->next = NULL;
+
+	t_benchmark *sorted = arr[0];
+	free(arr);
+	return sorted;
 }
 
-int get_benchmark_list_size(const t_benchmark *lst)
+size_t get_benchmark_list_size(const t_benchmark *lst)
 {
-	int len = 0;
+	size_t len = 0;
 	while (lst) {
 		len++;
 		lst = lst->next;
