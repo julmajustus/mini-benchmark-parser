@@ -6,11 +6,13 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/21 19:06:18 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/21 19:42:19 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "log_parser.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 static int parse_result(const char *str, double *result)
 {
@@ -97,13 +99,12 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			}
 
 			FILE *f = fopen(full_path, "r");
-			
+
+			free(full_path);
 			if (!f) {
 				fprintf(stderr, "Failed to open file: %s\n", entry->d_name);
-				free(full_path);
 				continue;
 			}
-			free(full_path);
 
 			t_test_entry *te = NULL;
 			
@@ -111,23 +112,46 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			memset(line, '\0', BUF_SIZE);
 			char *date = NULL;
 			char *kernel_ver = NULL;
-			char *system_info = NULL;
 			int mode = 0;
 			int test_data_collected = 0;
 			int is_malformed = 0;
+			
+			size_t system_info_cap = BUF_SIZE;
+			size_t system_info_len = 0;
+			char *system_info = malloc(system_info_cap);
+			if (!system_info) {
+				fprintf(stderr, "Failed to malloc system_info buffer\n");
+				is_malformed = 1;
+				break;
+			}
+			system_info[0] = '\0';
+
 			while (fgets(line, sizeof(line), f)) {
+				
+				size_t line_len = strlen(line);
+
 				if (test_data_collected) {
-					int new_len = strlen(system_info) + strlen(line) + 1;
-					char *new_system_info = realloc(system_info, new_len);
-					if (!new_system_info) {
-						fprintf(stderr, "Calloc failed when collecting system information\n");
-						is_malformed = 1;
-						break;
+
+					if (system_info_len + line_len + 1 > system_info_cap) {
+						size_t new_cap = system_info_cap * 2;
+						if (new_cap < system_info_len + line_len + 1)
+							new_cap = system_info_len + line_len + 1;
+
+						char *tmp = realloc(system_info, new_cap);
+						if (!tmp) {
+							fprintf(stderr, "Failed to expand system_info buffer\n");
+							is_malformed = 1;
+							break;
+						}
+						system_info = tmp;
+						system_info_cap = new_cap;
 					}
-					system_info = new_system_info;
-					strcat(system_info, line);
+
+					memcpy(system_info + system_info_len, line, line_len);
+					system_info_len += line_len;
+					system_info[system_info_len] = '\0';
 				}
-				else if (strspn(line, " \t\n\v\f\r") == strlen(line))
+				else if (strspn(line, " \t\n\v\f\r") == line_len)
 					continue;
 				else if (strncmp(line, "Mode: mini", 10) == 0) {
 					mode = 1;
@@ -138,12 +162,14 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 					continue;
 				}
 				else if (strncmp(line, "Date: ", 6) == 0)
-					date = strndup(line + 6, (strlen(line) - 7));
+					date = strndup(line + 6, (line_len - 7));
 				else if (strncmp(line, "System:    Kernel: ", 19) == 0) {
 					const char *p = line + 19;
 					const char *end = strchr(p, ' ');
 					kernel_ver = strndup(p, end - p);
-					system_info = strdup(line);
+					memcpy(system_info + system_info_len, line, line_len);
+					system_info_len += line_len;
+					system_info[system_info_len] = '\0';
 					test_data_collected = 1;
 					continue;
 				}
@@ -178,7 +204,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 						}
 					}
 
-					test_result_str = strndup(line + strlen(test_name) + 2, strlen(line));
+					test_result_str = strndup(line + strlen(test_name) + 2, line_len);
 					if (!test_result_str) {
 						fprintf(stderr, "Failed to read result from: %s\n", line);
 						continue;

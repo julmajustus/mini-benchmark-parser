@@ -6,14 +6,14 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:36:12 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/21 18:49:50 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/21 19:23:50 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOG_PARSER_H
 #define LOG_PARSER_H
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 2048
 
 #include "benchmark.h"
 #include <stddef.h>
