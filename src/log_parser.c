@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:51:05 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/21 19:00:25 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/21 19:06:18 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 			
 			if (!f) {
 				fprintf(stderr, "Failed to open file: %s\n", entry->d_name);
+				free(full_path);
 				continue;
 			}
 			free(full_path);
@@ -153,7 +154,7 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 					
 					char *col = strchr(line, ':');
 					if (!col) {
-						fprintf(stderr, "Malformed line (no colon): %s\n", line);
+						fprintf(stderr, "Failed to read test name (no colon): %s\n", line);
 						is_malformed = 1;
 						continue;
 					}
