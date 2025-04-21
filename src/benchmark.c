@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:42:47 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 00:44:00 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 00:55:52 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,8 +210,8 @@ t_benchmark *sort_benchmarks(t_benchmark *benchmark)
 {
 
     int count = get_benchmark_list_size(benchmark);
-    if (count == 0)
-        return NULL;
+    if (count < 2)
+        return benchmark;
 
     t_benchmark **arr = malloc(count * sizeof(t_benchmark *));
     if (!arr) {
