@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 17:43:45 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 02:10:40 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:16:38 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,16 @@ static t_benchmark *get_benchmarks_by_mode(const t_benchmark *benchmarks, int mo
 	const t_benchmark *bm = benchmarks;
 	t_benchmark *group = NULL;
 	t_benchmark *tail = NULL;
+	
 	while (bm) {
 		if (bm->mode == mode) {
 			t_benchmark *copy = malloc(sizeof(t_benchmark));
+	
 			if (!copy) {
 				fprintf(stderr, "Memory allocation failed for benchmark copy.\n");
 				continue;
 			}
+
 			memcpy(copy, bm, sizeof(t_benchmark));
 			copy->next = NULL;
 
@@ -38,6 +41,7 @@ static t_benchmark *get_benchmarks_by_mode(const t_benchmark *benchmarks, int mo
 		}
 		bm = bm->next;
 	}
+
 	return group;
 }
 
@@ -60,10 +64,12 @@ static char *generate_filename(const char *prefix, int mode)
 		size = strlen(prefix) + strlen(timestamp) + 11;
 
 	char *filename = malloc(size);
+	
 	if (!filename) {
 		fprintf(stderr, "Memory allocation failed for filename.\n");
 		return NULL;
 	}
+	
 	if (mode)
 		snprintf(filename, size, "%s-%s_%s.png", prefix, mode_str, timestamp);
 	else
@@ -80,15 +86,19 @@ static void plot_kernel_version_comparison(const t_benchmark *benchmarks, char *
 	const t_benchmark *bm = benchmarks;
 	PyObject *py_average_times = PyList_New(0);
 	PyObject *py_kernel_versions = PyList_New(0);
-
-	if (!py_average_times || !py_kernel_versions) {
+	
+	if (!py_average_times) {
 		fprintf(stderr, "Failed to allocate Python objects.\n");
+		return;
+	}
+	if (!py_kernel_versions) {
+		fprintf(stderr, "Failed to allocate Python objects.\n");
+		Py_DECREF(py_average_times);
 		return;
 	}
 
 	while (bm) {
 		PyObject *py_tests = PyDict_New();
-
 		if (!py_tests) {
 			fprintf(stderr, "Failed to allocate Python dict.\n");
 			continue;
