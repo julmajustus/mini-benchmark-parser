@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 15:12:30 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 02:28:28 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:36:40 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,17 +140,17 @@ int main(int ac, char **av)
 		const char *home = getenv("HOME");
 
 		if (home) {
-			char path[PATH_MAX];
-			snprintf(path, sizeof(path), "%s/.local/share/mbparser/", home);
+			char chart_path[PATH_MAX];
+			snprintf(chart_path, sizeof(chart_path), "%s/.local/share/mbparser/", home);
 
 			if (access(path, F_OK | R_OK | W_OK) != 0) {
-				if (mkdir(path, 0755) == -1) {
-					fprintf(stderr, "Failed to create the directory: %s\n", path);
+				if (mkdir(chart_path, 0755) == -1) {
+					fprintf(stderr, "Failed to create the directory: %s\n", chart_path);
 					clean_benchmarks(benchmarks);
 					return 1;
 				}
 			}
-			if (chdir(path) != -1)
+			if (chdir(chart_path) != -1)
 				generate_comparison_charts(benchmarks, make_html);
 			else
 				fprintf(stderr, "Failed to change directory!\n");
