@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 15:12:30 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/19 18:15:42 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 00:48:47 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "print_benchmarks.h"
 #include "generate_charts.h"
 #include <getopt.h>
+#include <stdio.h>
 
 static void print_usage(const char *binary_name)
 {
@@ -121,6 +122,11 @@ int main(int ac, char **av)
 
 	if (get_combined_benchmarks || get_kernel_comparisons) {
 		t_benchmark *combined = combine_benchmarks(benchmarks);
+		if (!combined) {
+			fprintf(stderr, "Benchmark combine failed\n");
+			clean_benchmarks(benchmarks);
+			return 1;
+		}
 		combined = sort_benchmarks(combined);
 		if (get_combined_benchmarks)
 			print_benchmark(combined, print_sys_info);

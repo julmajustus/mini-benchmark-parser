@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 17:43:45 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/19 00:31:03 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 00:51:43 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,6 +249,16 @@ void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
 			continue;
 		}
 		t_benchmark *combined = combine_benchmarks(bm);
+		if (!combined) {
+			fprintf(stderr, "Benchmark combine failed\n");
+			free(filename);
+			while (bm) {
+				t_benchmark *next = bm->next;
+				free(bm);
+				bm = next;
+			}
+			return;
+		}
 		combined = sort_benchmarks(combined);
 		plot_kernel_version_comparison(combined, filename[i]);
 		clean_benchmarks(combined);

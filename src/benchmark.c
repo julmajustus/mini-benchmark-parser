@@ -6,11 +6,12 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:42:47 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/18 23:58:10 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 00:44:00 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "benchmark.h"
+#include <stdio.h>
 
 t_benchmark *new_benchmark(t_test_entry *data, char *date, char *kernel_ver, char *system_info, int mode)
 {
@@ -64,31 +65,98 @@ t_benchmark *find_benchmark_by_kernel(t_benchmark *lst, const char *kernel_ver, 
 	return NULL;
 }
 
+static t_benchmark *duplicate_benchmark(const t_benchmark *benchmark)
+{
+	t_test_entry *te_dup = NULL;
+	char *date_dup = NULL;
+	char *kv_dup = NULL;
+	char *sysinfo_dup = NULL;
+	t_benchmark *result = NULL;
+
+	t_test_entry *te = benchmark->data;
+	while(te) {
+		char *name_dup = strdup(te->name);
+		if (!name_dup) {
+			clean_test_entrys(te_dup);
+			return NULL;
+		}
+		t_test_entry *node = new_test_entry(name_dup, te->result);
+		if (!node) {
+			free(name_dup);
+			clean_test_entrys(te_dup);
+			return NULL;
+		}
+		test_entry_add_back(&te_dup, node);
+		te = te->next;
+	}
+
+	date_dup = strdup(benchmark->date);
+	if (!date_dup) {
+		clean_test_entrys(te_dup);
+		return NULL;
+	}
+
+	kv_dup = strdup(benchmark->kernel_ver);
+	if (!kv_dup) {
+		free(date_dup);
+		clean_test_entrys(te_dup);
+		return NULL;
+	}
+
+	sysinfo_dup = strdup(benchmark->system_info);
+	if (!sysinfo_dup) {
+		free(kv_dup);
+		free(date_dup);
+		clean_test_entrys(te_dup);
+		return NULL;
+	}
+
+	result = new_benchmark(te_dup, date_dup, kv_dup, sysinfo_dup, benchmark->mode);
+	if (!result) {
+		free(sysinfo_dup);
+		free(kv_dup);
+		free(date_dup);
+		clean_test_entrys(te_dup);
+		return NULL;
+	}
+
+	return result;
+}
+
 t_benchmark *combine_benchmarks(const t_benchmark *benchmark)
 {
 	t_benchmark *combined = NULL;
 
 	while (benchmark) {
 		t_benchmark *found = find_benchmark_by_kernel(combined, benchmark->kernel_ver, benchmark->mode);
-		if (!found) {
-			t_test_entry *dup_list = NULL;
-			t_test_entry *temp = benchmark->data;
-			while (temp) {
-				test_entry_add_back(&dup_list, new_test_entry(strdup(temp->name), temp->result));
-				temp = temp->next;
+
+		if (found) {
+			for (t_test_entry *te = benchmark->data; te; te = te->next) {
+				char *name_dup = strdup(te->name);
+				if (!name_dup) {
+					clean_benchmarks(combined);
+					return NULL;
+				}
+				t_test_entry *node = new_test_entry(name_dup, te->result);
+				if (!node) {
+					free(name_dup);
+					clean_benchmarks(combined);
+					return NULL;
+				}
+				merge_test_entry(&found->data, node);
 			}
-			benchmark_add_back(&combined,
-					  new_benchmark(dup_list, strdup(benchmark->date), strdup(benchmark->kernel_ver), strdup(benchmark->system_info), benchmark->mode));
 		}
 		else {
-			t_test_entry *temp = benchmark->data;
-			while (temp) {
-				merge_test_entry(&(found->data), new_test_entry(strdup(temp->name), temp->result));
-				temp = temp->next;
+			t_benchmark *dup = duplicate_benchmark(benchmark);
+			if (!dup) {
+				clean_benchmarks(combined);
+				return NULL;
 			}
+			benchmark_add_back(&combined, dup);
 		}
 		benchmark = benchmark->next;
 	}
+
 	return combined;
 }
 
