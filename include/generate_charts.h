@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 17:45:44 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/18 22:12:48 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 03:05:21 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,6 @@
 #include <Python.h>
 #include "benchmark.h"
 
-void generate_comparison_charts(t_benchmark *benchmarks, int make_html);
+void	generate_comparison_charts(t_benchmark *benchmarks, int make_html);
 
 #endif
