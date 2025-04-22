@@ -6,11 +6,12 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:48:26 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 02:32:28 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 03:19:21 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "print_benchmarks.h"
+#include <stddef.h>
 
 void print_benchmark(t_benchmark *benchmark, int print_sys_info)
 {
@@ -69,21 +70,32 @@ void print_kernel_comparison(t_benchmark *combined)
 	if (!combined)
 		return;
 
-	int padding_width = 0, max_test_count = 0;
+	size_t padding_width = 0, max_test_count = 0;
 	t_benchmark *bm = combined;
 
 	while (bm) {
-		int len = strlen(bm->kernel_ver);
-		int bm_test_count = get_test_entry_list_size(bm->data);
+		size_t len = strlen(bm->kernel_ver);
+		size_t bm_test_count = get_test_entry_list_size(bm->data);
 
 		if (len > padding_width)
 			padding_width = len;
 		
+		if (max_test_count > SIZE_MAX - bm_test_count) {
+			fprintf(stderr, "Too many tests to handle\n");
+			return;
+		}
+
 		max_test_count += bm_test_count;
 		bm = bm->next;
 	}
 
 	int t_time = 0, t_score = 0, test_count = 0;
+	
+	if (max_test_count + 2 > SIZE_MAX / sizeof(char *)) {
+		fprintf(stderr, "Allocation size overflow\n");
+		return;
+	}
+
 	char **test_names = malloc(sizeof(char *) * max_test_count + 2);
 	if (!test_names) {
 		fprintf(stderr, "Memory allocation error.\n");
@@ -132,12 +144,12 @@ void print_kernel_comparison(t_benchmark *combined)
 			if (entry) {
 				if (bm->mode) {
 					if (bm->mode == 1)
-						printf("%-*s mini: %f\n", padding_width, bm->kernel_ver, entry->result);
+						printf("%-*s mini: %f\n", (int)padding_width, bm->kernel_ver, entry->result);
 					else if (bm->mode == 2)
-						printf("%-*s nano: %f\n", padding_width, bm->kernel_ver, entry->result);
+						printf("%-*s nano: %f\n", (int)padding_width, bm->kernel_ver, entry->result);
 				}
 				else
-				printf("%-*s : %f\n", padding_width, bm->kernel_ver, entry->result);
+				printf("%-*s : %f\n", (int)padding_width, bm->kernel_ver, entry->result);
 			}
 			bm = bm->next;
 		}
