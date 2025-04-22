@@ -6,12 +6,11 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 10:48:26 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 03:19:21 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 03:21:44 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "print_benchmarks.h"
-#include <stddef.h>
 
 void print_benchmark(t_benchmark *benchmark, int print_sys_info)
 {
