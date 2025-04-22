@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 15:12:30 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 02:40:03 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/22 02:59:52 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #include "print_benchmarks.h"
 #include "generate_charts.h"
 #include <getopt.h>
-#include <stdio.h>
 
 static void print_usage(const char *binary_name)
 {
@@ -127,40 +126,55 @@ int main(int ac, char **av)
 			clean_benchmarks(benchmarks);
 			return 1;
 		}
+
 		combined = sort_benchmarks(combined);
+	
 		if (get_combined_benchmarks)
 			print_benchmark(combined, print_sys_info);
-		if (get_kernel_comparisons) {
+		
+		if (get_kernel_comparisons)
 			print_kernel_comparison(combined);
-		}
+
 		clean_benchmarks(combined);
 	}
 
 	if (get_charts) {
 		const char *home = getenv("HOME");
+		if (!home) {
+			fprintf(stderr, "Getenv failed to get $HOME variable\n");
+			clean_benchmarks(benchmarks);
+			return 1;
+		}
 
-		if (home) {
-			char chart_path[PATH_MAX];
-			if (snprintf(chart_path, sizeof(chart_path), "%s/.local/share/mbparser/", home) < 0) {
-				fprintf(stderr, "HOME path too long\n");
+		char chart_dir[PATH_MAX];
+		const char *xdg_data = getenv("XDG_DATA_HOME");
+		int len;
+
+		if (xdg_data && *xdg_data)
+			len = snprintf(chart_dir, sizeof(chart_dir), "%s/%s", xdg_data, av[0]);
+		else
+			len = snprintf(chart_dir, sizeof(chart_dir), "%s/.local/share/%s", home, av[0]);
+		if (len < 0 || (size_t)len >= sizeof(chart_dir)) {
+			fprintf(stderr, "Data directory path too long\n");
+			clean_benchmarks(benchmarks);
+			return 1;
+		}
+
+		if (access(chart_dir, F_OK) != 0) {
+			if (mkdir(chart_dir, 0755) == -1 && errno != EEXIST) {
+				fprintf(stderr, "Failed to create the directory: %s\n", chart_dir);
 				clean_benchmarks(benchmarks);
 				return 1;
 			}
-
-			if (access(chart_path, F_OK | R_OK | W_OK) != 0) {
-				if (mkdir(chart_path, 0755) == -1) {
-					fprintf(stderr, "Failed to create the directory: %s\n", chart_path);
-					clean_benchmarks(benchmarks);
-					return 1;
-				}
-			}
-			if (chdir(chart_path) != -1)
-				generate_comparison_charts(benchmarks, make_html);
-			else
-				fprintf(stderr, "Failed to change directory!\n");
 		}
-		else
-			fprintf(stderr, "Getenv failed to get $HOME variable\n");
+
+		if (chdir(chart_dir) == -1) {
+			fprintf(stderr, "Failed to change directory!\n");
+			clean_benchmarks(benchmarks);
+			return 1;
+		}
+
+		generate_comparison_charts(benchmarks, make_html);
 	}
 
 	clean_benchmarks(benchmarks);
