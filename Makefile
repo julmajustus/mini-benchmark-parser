@@ -6,7 +6,7 @@
 #    By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/08 15:31:00 by jmakkone          #+#    #+#              #
-#    Updated: 2025/04/21 19:57:47 by jmakkone         ###   ########.fr        #
+#    Updated: 2025/04/26 00:14:00 by jmakkone         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ endif
 ifeq ($(BUILD), debug)
     CFLAGS := -Wall -Wextra -Werror -Og -ggdb3
 else ifeq ($(BUILD), release)
-    CFLAGS := -Wall -Wextra -Werror -O2
+    CFLAGS := -Wall -Wextra -Werror -O3 -march=native
 else
     CFLAGS := -Wall -Wextra -Werror -O2
 endif

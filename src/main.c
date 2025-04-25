@@ -6,7 +6,7 @@
 /*   By: jmakkone <jmakkone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 15:12:30 by jmakkone          #+#    #+#             */
-/*   Updated: 2025/04/22 02:59:52 by jmakkone         ###   ########.fr       */
+/*   Updated: 2025/04/26 00:13:04 by jmakkone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,10 @@ static void print_usage(const char *binary_name)
 
 int main(int ac, char **av)
 {
+	if (ac < 2) {
+		print_usage(av[0]);
+		return 1;
+	}
 	int opt;
 	int get_benchmarks = 0, get_combined_benchmarks = 0, get_kernel_comparisons = 0, print_sys_info = 0, get_charts = 0, make_html = 0;
 	char *path = ".";
