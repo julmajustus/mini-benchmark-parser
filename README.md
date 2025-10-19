@@ -2,6 +2,8 @@
 
 mini-benchmark-parser is a C-based log parser and visualizer for Mini Benchmarker log files, leveraging embedded Python for chart generation. It provides advanced filtering, aggregation, and comparison capabilities, and can output both textual summaries and HTML-embedded charts.
 
+[mini-benchmarker](https://gitlab.com/torvic9/mini-benchmarker) by Tor Vic
+
 ## Features
 
 - **Log Path Configuration**: Specify a directory of Mini Benchmarker log files.
@@ -15,7 +17,7 @@ mini-benchmark-parser is a C-based log parser and visualizer for Mini Benchmarke
 - **Output Files**:  
   - All generated PNG charts and the HTML report are saved under  
     `~/.local/share/mbparser/`  
-  - Existing directory will be created if missing.  
+  - Non existing directory will be created if missing.  
 - **Legacy Log Support**:  
   - Also capable of parsing older “mini” and “nano” modes from the original Mini Benchmarker logs.
 
