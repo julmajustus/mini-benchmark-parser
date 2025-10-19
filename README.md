@@ -1,8 +1,6 @@
 # mini-benchmark-parser
+mini-benchmark-parser is a C-based log parser and visualizer for [Tor Vic’s Mini Benchmarker](https://gitlab.com/torvic9/mini-benchmarker), leveraging embedded Python for chart generation. It provides advanced filtering, aggregation, and comparison capabilities, and can output both textual summaries and HTML-embedded charts.
 
-mini-benchmark-parser is a C-based log parser and visualizer for Mini Benchmarker log files, leveraging embedded Python for chart generation. It provides advanced filtering, aggregation, and comparison capabilities, and can output both textual summaries and HTML-embedded charts.
-
-[mini-benchmarker](https://gitlab.com/torvic9/mini-benchmarker) by Tor Vic
 
 ## Features
 
