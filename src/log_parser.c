@@ -149,6 +149,8 @@ t_benchmark *read_logs(const char *path, const char *kernel_filter, const char *
 				}
 				else if (strspn(line, " \t\n\v\f\r") == line_len)
 					continue;
+				else if (strncmp(line, "Name: ", 6) == 0)
+					continue;
 				else if (strncmp(line, "Mode: mini", 10) == 0) {
 					mode = 1;
 					continue;
