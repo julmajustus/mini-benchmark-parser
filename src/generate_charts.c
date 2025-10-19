@@ -188,7 +188,7 @@ static void plot_kernel_version_comparison(const t_benchmark *benchmarks, char *
 		return;
 	}
 
-	printf("Comparison chart generated successfully as '%s'!\n", filename);
+	printf("Comparison chart generated successfully as '~/.local/share/mbparser/%s'!\n", filename);
 
 	Py_DECREF(py_average_times);
 	Py_DECREF(py_kernel_versions);
@@ -236,7 +236,7 @@ static void generate_html_page(char **filenames)
 		 "</html>\n");
 
 	fclose(fp);
-	printf("HTML page generated successfully as 'test_performance.html'!\n");
+	printf("HTML page generated successfully as '~/.local/share/mbparser/test_performance.html'!\n");
 }
 
 void generate_comparison_charts(t_benchmark *benchmarks, int make_html)
